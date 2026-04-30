@@ -1,4 +1,4 @@
 sample,bam,bai
-s1,samples/cds_21975__990-ready.bam,
-s2,samples/cds_22020__855-ready.bam,samples/cds_22020__855-ready.bam.bai
-s3,samples/cds_22021__848-ready.bam,samples/cds_22021__848-ready.bam.bai
+s1,data/cds_21975__990-ready.bam,data/cds_21975__990-ready.bam.bai
+s2,data/cds_22020__855-ready.bam,data/cds_22020__855-ready.bam.bai
+s3,data/cds_22021__848-ready.bam,data/cds_22021__848-ready.bam.bai
