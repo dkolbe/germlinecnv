@@ -3,10 +3,11 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { paramsSummaryMap       } from 'plugin/nf-schema'
-include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_germlinecnv_pipeline'
-include { SAMTOOLS_INDEX         } from '../modules/nf-core/samtools/index'
+include { paramsSummaryMap        } from 'plugin/nf-schema'
+include { softwareVersionsToYAML  } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { methodsDescriptionText  } from '../subworkflows/local/utils_nfcore_germlinecnv_pipeline'
+include { GATK4_COLLECTREADCOUNTS } from '../modules/nf-core/gatk4/collectreadcounts/main'
+include { SAMTOOLS_INDEX          } from '../modules/nf-core/samtools/index'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -18,6 +19,10 @@ workflow GERMLINECNV {
 
     take:
     ch_samplesheet // channel: samplesheet read in from --input
+    ch_fasta
+    ch_fai
+    ch_dict
+    ch_interval_list
     outdir
 
     main:
@@ -41,8 +46,21 @@ workflow GERMLINECNV {
         .join(ch_index)
         .mix(ch_for_mix.alignment_with_index)
         //.combine(GATK4_PREPROCESSINTERVALS.out.interval_list.map { it -> it[1] })
+        .combine(ch_interval_list.map { it -> it[1] })
         .set { ch_readcounts_in }
 
+    GATK4_COLLECTREADCOUNTS(
+        ch_readcounts_in,
+        ch_fasta,
+        ch_fai,
+        ch_dict
+    )
+
+    GATK4_COLLECTREADCOUNTS.out.tsv
+        .mix(GATK4_COLLECTREADCOUNTS.out.hdf5)
+        .collect { _meta, file -> [file] }
+        //.map { tsv -> [[id: val_pon_name], tsv] }
+        .set { ch_readcounts_out }
 
     def ch_versions = channel.empty()
 
@@ -76,6 +94,7 @@ workflow GERMLINECNV {
         )
     emit:
     indices        = SAMTOOLS_INDEX.out.index
+    readcounts     = ch_readcounts_out
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
 }
 

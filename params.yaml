@@ -1,3 +1,7 @@
 input: './assets/samplesheet.csv'
 outdir: './results/'
 pipeline_email: false
+fasta: '/Shared/Bioinformatics/data/genomes/Hsapiens/GRCh38/seq/hg38.analysisSet.fa'
+fai: '/Shared/Bioinformatics/data/genomes/Hsapiens/GRCh38/seq/hg38.analysisSet.fa.fai'
+dict: '/Shared/Bioinformatics/data/genomes/Hsapiens/GRCh38/seq/hg38.analysisSet.dict'
+gcnv_model_interval_list: '/Dedicated/MORL-Analysis/Users/dkolbe/GATK-CNV-reference/otoscope_v9_GRCh38/results/otoscope_v9_gcnvmodel.interval_list'

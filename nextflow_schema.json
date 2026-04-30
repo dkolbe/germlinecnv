@@ -10,7 +10,10 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["input", "outdir"],
+            "required": [
+                "input",
+                "outdir"
+            ],
             "properties": {
                 "input": {
                     "type": "string",
@@ -38,6 +41,52 @@
                 }
             }
         },
+        "reference_genome_options": {
+            "title": "Reference genome options",
+            "type": "object",
+            "description": "",
+            "default": "",
+            "properties": {
+                "fasta": {
+                    "type": "string",
+                    "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
+                    "format": "file-path",
+                    "description": "FASTA genome file"
+                },
+                "fai": {
+                    "type": "string",
+                    "description": "Index for FASTA genome file",
+                    "pattern": "^\\S+\\.fn?a(sta)?\\.fai$",
+                    "format": "file-path"
+                },
+                "dict": {
+                    "type": "string",
+                    "description": "Genome sequence dictionary file",
+                    "pattern": "^\\S+\\.dict$",
+                    "format": "file-path"
+                }
+            },
+            "required": [
+                "fasta"
+            ]
+        },
+        "gcnv_model_options": {
+            "title": "gcnv model options",
+            "type": "object",
+            "description": "Define an existing gcnv model",
+            "default": "",
+            "properties": {
+                "gcnv_model_interval_list": {
+                    "type": "string",
+                    "description": "Annotated and filtered interval list for countReads",
+                    "pattern": "^\\S+\\.interval_list$",
+                    "format": "file-path"
+                }
+            },
+            "required": [
+                "gcnv_model_interval_list"
+            ]
+        },
         "generic_options": {
             "title": "Generic options",
             "type": "object",
@@ -57,7 +106,14 @@
                     "description": "Method used to save pipeline results to output directory.",
                     "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.",
                     "fa_icon": "fas fa-copy",
-                    "enum": ["symlink", "rellink", "link", "copy", "copyNoFollow", "move"],
+                    "enum": [
+                        "symlink",
+                        "rellink",
+                        "link",
+                        "copy",
+                        "copyNoFollow",
+                        "move"
+                    ],
                     "hidden": true
                 },
                 "email_on_fail": {
@@ -101,7 +157,10 @@
                     "hidden": true
                 },
                 "help": {
-                    "type": ["boolean", "string"],
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
                     "description": "Display the help message."
                 },
                 "help_full": {
@@ -118,6 +177,12 @@
     "allOf": [
         {
             "$ref": "#/$defs/input_output_options"
+        },
+        {
+            "$ref": "#/$defs/reference_genome_options"
+        },
+        {
+            "$ref": "#/$defs/gcnv_model_options"
         },
         {
             "$ref": "#/$defs/generic_options"

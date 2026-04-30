@@ -29,15 +29,23 @@ workflow DKOLBE_GERMLINECNV {
 
     take:
     samplesheet // channel: samplesheet read in from --input
+    fasta
+    fai
+    dict
+    gcnv_model_interval_list // channel: [meta, gcnv_target_interval_list]
 
     main:
-    samplesheet.view()
+    //samplesheet.view()
 
     //
     // WORKFLOW: Run pipeline
     //
     GERMLINECNV (
         samplesheet,
+        fasta,
+        fai,
+        dict,
+        gcnv_model_interval_list,
         params.outdir,
     )
 }
@@ -65,11 +73,20 @@ workflow {
         params.show_hidden
     )
 
+    ch_fasta                    = Channel.fromPath(params.fasta                   ).map { it -> [[id:it.simpleName], it] }.collect()
+    ch_fai                      = Channel.fromPath(params.fai                     ).map { it -> [[id:it.simpleName], it] }.collect()
+    ch_dict                     = Channel.fromPath(params.dict                    ).map { it -> [[id:it.simpleName], it] }.collect()
+    ch_gcnv_model_interval_list = Channel.fromPath(params.gcnv_model_interval_list).map { it -> [[id:it.simpleName], it] }.collect()
+
     //
     // WORKFLOW: Run main workflow
     //
     DKOLBE_GERMLINECNV (
-        PIPELINE_INITIALISATION.out.samplesheet
+        PIPELINE_INITIALISATION.out.samplesheet,
+        ch_fasta,
+        ch_fai,
+        ch_dict,
+        ch_gcnv_model_interval_list
     )
     //
     // SUBWORKFLOW: Run completion tasks
