@@ -1,0 +1,101 @@
+repository_type: pipeline
+
+nf_core_version: 4.0.0
+
+lint:
+  files_unchanged:
+    - .prettierignore
+    - docs/CONTRIBUTING.md
+    - LICENSE
+    - .github/ISSUE_TEMPLATE/bug_report.yml
+    - .github/ISSUE_TEMPLATE/config.yml
+    - .github/ISSUE_TEMPLATE/feature_request.yml
+    - .github/PULL_REQUEST_TEMPLATE.md
+    - .github/workflows/branch.yml
+    - .github/workflows/linting_comment.yml
+    - .github/workflows/linting.yml
+    - .github/.dockstore.yml
+    - CODE_OF_CONDUCT.md
+    - assets/nf-core-germlinecnv_logo_light.png
+    - docs/images/nf-core-germlinecnv_logo_light.png
+    - docs/images/nf-core-germlinecnv_logo_dark.png
+    - .github/ISSUE_TEMPLATE/bug_report.yml
+    - .github/PULL_REQUEST_TEMPLATE.md
+    - assets/email_template.txt
+    - docs/README.md
+    - assets/sendmail_template.txt
+  nextflow_config:
+    - process.cpus
+    - process.memory
+    - process.time
+    - custom_config
+    - params.custom_config_version
+    - params.custom_config_base
+    - manifest.name
+    - manifest.homePage
+  nf_test_content: false
+  multiqc_config: false
+  files_exist:
+    - .github/workflows/nf-test.yml
+    - .github/actions/get-shards/action.yml
+    - .github/actions/nf-test/action.yml
+    - nf-test.config
+    - tests/default.nf.test
+    - .prettierignore
+    - .prettierrc.yml
+    - LICENSE
+    - .github/workflows/branch.yml
+    - .github/workflows/nf-test.yml
+    - .github/actions/get-shards/action.yml
+    - .github/actions/nf-test/action.yml
+    - .github/workflows/linting_comment.yml
+    - .github/workflows/linting.yml
+    - conf/igenomes.config
+    - conf/igenomes_ignored.config
+    - conf/igenomes.config
+    - .github/ISSUE_TEMPLATE/bug_report.yml
+    - .github/ISSUE_TEMPLATE/feature_request.yml
+    - .github/PULL_REQUEST_TEMPLATE.md
+    - .github/.dockstore.yml
+    - docs/CONTRIBUTING.md
+    - CODE_OF_CONDUCT.md
+    - assets/nf-core-germlinecnv_logo_light.png
+    - docs/images/nf-core-germlinecnv_logo_light.png
+    - docs/images/nf-core-germlinecnv_logo_dark.png
+    - .github/ISSUE_TEMPLATE/config.yml
+    - .github/workflows/awstest.yml
+    - .github/workflows/awsfulltest.yml
+    - assets/multiqc_config.yml
+    - CHANGELOG.md
+  readme:
+    - nextflow_badge
+    - nfcore_template_badge
+    - nextflow_badge
+  included_configs: false
+
+template:
+  org: dkolbe
+  name: germlinecnv
+  description: CNV calling using GATK4 germline CNV caller
+  author: dkolbe
+  version: '0.1'
+  force: true
+  outdir: .
+  skip_features:
+    - github
+    - github_badges
+    - changelog
+    - license
+    - ci
+    - nf-test
+    - igenomes
+    - multiqc
+    - fastqc
+    - nf_core_configs
+    - seqera_platform
+    - gpu
+    - codespaces
+    - vscode
+    - code_linters
+    - rocrate
+  is_nfcore: false
