@@ -13,21 +13,21 @@
                 "errorMessage": "Sample name must be provided and cannot contain spaces",
                 "meta": ["id"]
             },
-            "fastq_1": {
+            "bam": {
+                "errorMessage": "BAM file cannot contain spaces, has to exist and must have extension '.bam'",
                 "type": "string",
+                "pattern": "^\\S+\\.bam$",
                 "format": "file-path",
-                "exists": true,
-                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "exists": true
             },
-            "fastq_2": {
+            "bai": {
+                "errorMessage": "BAM index file cannot contain spaces and must have extension '.bai'",
                 "type": "string",
+                "pattern": "^\\S+\\.bai$",
                 "format": "file-path",
-                "exists": true,
-                "pattern": "^([\\S\\s]*\\/)?[^\\s\\/]+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "exists": true
             }
         },
-        "required": ["sample", "fastq_1"]
+        "required": ["sample", "bam"]
     }
 }

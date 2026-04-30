@@ -31,6 +31,7 @@ workflow DKOLBE_GERMLINECNV {
     samplesheet // channel: samplesheet read in from --input
 
     main:
+    samplesheet.view()
 
     //
     // WORKFLOW: Run pipeline

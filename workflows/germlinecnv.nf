@@ -6,6 +6,7 @@
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_germlinecnv_pipeline'
+include { SAMTOOLS_INDEX         } from '../modules/nf-core/samtools/index'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -20,6 +21,28 @@ workflow GERMLINECNV {
     outdir
 
     main:
+
+    // Check input samples for missing indices and create them
+    ch_samplesheet
+        .branch { meta, bam, bai ->
+            alignment_with_index: bai.size() > 0
+            return [meta, bam, bai]
+            alignment_without_index: bai.size() == 0
+            return [meta, bam]
+        }
+        .set { ch_for_mix }
+
+    SAMTOOLS_INDEX(ch_for_mix.alignment_without_index)
+
+    ch_index = SAMTOOLS_INDEX.out.index
+
+    // Collect alignment files and their indices
+    ch_for_mix.alignment_without_index
+        .join(ch_index)
+        .mix(ch_for_mix.alignment_with_index)
+        //.combine(GATK4_PREPROCESSINTERVALS.out.interval_list.map { it -> it[1] })
+        .set { ch_readcounts_in }
+
 
     def ch_versions = channel.empty()
 
@@ -52,6 +75,7 @@ workflow GERMLINECNV {
             newLine: true
         )
     emit:
+    indices        = SAMTOOLS_INDEX.out.index
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
 }
 
