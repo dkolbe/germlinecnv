@@ -51,19 +51,22 @@
                     "type": "string",
                     "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
                     "format": "file-path",
-                    "description": "FASTA genome file"
+                    "description": "FASTA genome file",
+                    "fa_icon": "fas fa-dna"
                 },
                 "fai": {
                     "type": "string",
                     "description": "Index for FASTA genome file",
                     "pattern": "^\\S+\\.fn?a(sta)?\\.fai$",
-                    "format": "file-path"
+                    "format": "file-path",
+                    "fa_icon": "far fa-file"
                 },
                 "dict": {
                     "type": "string",
                     "description": "Genome sequence dictionary file",
                     "pattern": "^\\S+\\.dict$",
-                    "format": "file-path"
+                    "format": "file-path",
+                    "fa_icon": "far fa-file"
                 }
             },
             "required": [
@@ -76,15 +79,23 @@
             "description": "Define an existing gcnv model",
             "default": "",
             "properties": {
+                "gcnv_ploidy_model": {
+                    "type": "string",
+                    "description": "Chromosome ploidy model from reference cohort",
+                    "format": "directory-path",
+                    "fa_icon": "far fa-folder-open"
+                },
                 "gcnv_model_interval_list": {
                     "type": "string",
                     "description": "Annotated and filtered interval list for countReads",
                     "pattern": "^\\S+\\.interval_list$",
-                    "format": "file-path"
+                    "format": "file-path",
+                    "fa_icon": "far fa-file"
                 }
             },
             "required": [
-                "gcnv_model_interval_list"
+                "gcnv_model_interval_list",
+                "gcnv_ploidy_model"
             ]
         },
         "generic_options": {

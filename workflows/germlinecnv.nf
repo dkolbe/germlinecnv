@@ -3,11 +3,12 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { paramsSummaryMap        } from 'plugin/nf-schema'
-include { softwareVersionsToYAML  } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText  } from '../subworkflows/local/utils_nfcore_germlinecnv_pipeline'
-include { GATK4_COLLECTREADCOUNTS } from '../modules/nf-core/gatk4/collectreadcounts/main'
-include { SAMTOOLS_INDEX          } from '../modules/nf-core/samtools/index'
+include { paramsSummaryMap       } from 'plugin/nf-schema'
+include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_germlinecnv_pipeline'
+include { GATK4_COLLECTREADCOUNTS             } from '../modules/nf-core/gatk4/collectreadcounts/main'
+include { GATK4_DETERMINEGERMLINECONTIGPLOIDY } from '../modules/nf-core/gatk4/determinegermlinecontigploidy/main'
+include { SAMTOOLS_INDEX                      } from '../modules/nf-core/samtools/index'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -23,6 +24,7 @@ workflow GERMLINECNV {
     ch_fai
     ch_dict
     ch_interval_list
+    ch_ploidy_model
     outdir
 
     main:
@@ -57,10 +59,11 @@ workflow GERMLINECNV {
     )
 
     GATK4_COLLECTREADCOUNTS.out.tsv
-        .mix(GATK4_COLLECTREADCOUNTS.out.hdf5)
-        .collect { _meta, file -> [file] }
-        //.map { tsv -> [[id: val_pon_name], tsv] }
+        .map { meta, tsv -> return [meta, tsv, [], []] }
         .set { ch_readcounts_out }
+
+    ch_readcounts_out.view()
+    GATK4_DETERMINEGERMLINECONTIGPLOIDY ( ch_readcounts_out, ch_ploidy_model, [] )
 
     def ch_versions = channel.empty()
 

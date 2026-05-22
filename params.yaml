@@ -4,4 +4,5 @@ pipeline_email: false
 fasta: '/Shared/Bioinformatics/data/genomes/Hsapiens/GRCh38/seq/hg38.analysisSet.fa'
 fai: '/Shared/Bioinformatics/data/genomes/Hsapiens/GRCh38/seq/hg38.analysisSet.fa.fai'
 dict: '/Shared/Bioinformatics/data/genomes/Hsapiens/GRCh38/seq/hg38.analysisSet.dict'
+gcnv_ploidy_model: '/Dedicated/MORL-Analysis/Users/dkolbe/GATK-CNV-reference/otoscope_v9_GRCh38/results/germlinecnvcaller/determinegermlinecontigploidy/otoscope_v9_GRCh38-model/'
 gcnv_model_interval_list: '/Dedicated/MORL-Analysis/Users/dkolbe/GATK-CNV-reference/otoscope_v9_GRCh38/results/otoscope_v9_gcnvmodel.interval_list'

@@ -33,6 +33,7 @@ workflow DKOLBE_GERMLINECNV {
     fai
     dict
     gcnv_model_interval_list // channel: [meta, gcnv_target_interval_list]
+    gcnv_ploidy_model
 
     main:
     //samplesheet.view()
@@ -46,6 +47,7 @@ workflow DKOLBE_GERMLINECNV {
         fai,
         dict,
         gcnv_model_interval_list,
+        gcnv_ploidy_model,
         params.outdir,
     )
 }
@@ -77,6 +79,7 @@ workflow {
     ch_fai                      = Channel.fromPath(params.fai                     ).map { it -> [[id:it.simpleName], it] }.collect()
     ch_dict                     = Channel.fromPath(params.dict                    ).map { it -> [[id:it.simpleName], it] }.collect()
     ch_gcnv_model_interval_list = Channel.fromPath(params.gcnv_model_interval_list).map { it -> [[id:it.simpleName], it] }.collect()
+    ch_gcnv_ploidy_model        = Channel.fromPath(params.gcnv_ploidy_model       ).map { it -> [[id:it.simpleName], it] }.collect()
 
     //
     // WORKFLOW: Run main workflow
@@ -86,7 +89,8 @@ workflow {
         ch_fasta,
         ch_fai,
         ch_dict,
-        ch_gcnv_model_interval_list
+        ch_gcnv_model_interval_list,
+        ch_gcnv_ploidy_model
     )
     //
     // SUBWORKFLOW: Run completion tasks
