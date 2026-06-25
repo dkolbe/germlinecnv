@@ -8,6 +8,7 @@ include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pi
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_germlinecnv_pipeline'
 include { GATK4_COLLECTREADCOUNTS             } from '../modules/nf-core/gatk4/collectreadcounts/main'
 include { GATK4_DETERMINEGERMLINECONTIGPLOIDY } from '../modules/nf-core/gatk4/determinegermlinecontigploidy/main'
+include { GATK4_GERMLINECNVCALLER             } from '../modules/nf-core/gatk4/germlinecnvcaller/main'
 include { SAMTOOLS_INDEX                      } from '../modules/nf-core/samtools/index'
 
 /*
@@ -25,6 +26,7 @@ workflow GERMLINECNV {
     ch_dict
     ch_interval_list
     ch_ploidy_model
+    ch_gcnv_caller_model
     outdir
 
     main:
@@ -62,8 +64,16 @@ workflow GERMLINECNV {
         .map { meta, tsv -> return [meta, tsv, [], []] }
         .set { ch_readcounts_out }
 
-    ch_readcounts_out.view()
+    // ch_readcounts_out.view()
     GATK4_DETERMINEGERMLINECONTIGPLOIDY ( ch_readcounts_out, ch_ploidy_model, [] )
+
+    GATK4_COLLECTREADCOUNTS.out.tsv
+        .join(GATK4_DETERMINEGERMLINECONTIGPLOIDY.out.calls)
+        .combine(ch_gcnv_caller_model)
+        .map({ meta, tsv, calls, meta2, model -> return [meta, tsv, [], calls, model ]})
+        .set{ch_gcnvc_in}
+
+    GATK4_GERMLINECNVCALLER ( ch_gcnvc_in )
 
     def ch_versions = channel.empty()
 

@@ -79,6 +79,11 @@
             "description": "Define an existing gcnv model",
             "default": "",
             "properties": {
+                "gcnv_caller_model": {
+                    "type": "string",
+                    "fa_icon": "far fa-folder-open",
+                    "description": "CNV model from reference cohort"
+                },
                 "gcnv_ploidy_model": {
                     "type": "string",
                     "description": "Chromosome ploidy model from reference cohort",
@@ -94,8 +99,9 @@
                 }
             },
             "required": [
+                "gcnv_ploidy_model",
                 "gcnv_model_interval_list",
-                "gcnv_ploidy_model"
+                "gcnv_caller_model"
             ]
         },
         "generic_options": {
