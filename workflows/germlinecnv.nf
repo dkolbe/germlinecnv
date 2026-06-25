@@ -9,6 +9,7 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_germ
 include { GATK4_COLLECTREADCOUNTS             } from '../modules/nf-core/gatk4/collectreadcounts/main'
 include { GATK4_DETERMINEGERMLINECONTIGPLOIDY } from '../modules/nf-core/gatk4/determinegermlinecontigploidy/main'
 include { GATK4_GERMLINECNVCALLER             } from '../modules/nf-core/gatk4/germlinecnvcaller/main'
+include { GATK4_POSTPROCESSGERMLINECNVCALLS   } from '../modules/nf-core/gatk4/postprocessgermlinecnvcalls/main'
 include { SAMTOOLS_INDEX                      } from '../modules/nf-core/samtools/index'
 
 /*
@@ -74,6 +75,22 @@ workflow GERMLINECNV {
         .set{ch_gcnvc_in}
 
     GATK4_GERMLINECNVCALLER ( ch_gcnvc_in )
+
+    GATK4_GERMLINECNVCALLER.out.casecalls
+        .map { meta, model_calls ->
+            return [meta.id, meta, model_calls]
+        }
+        .groupTuple(by: 0)
+        .map { id, metas, model_calls ->
+            def meta = metas[0] // All metas should be the same for a given sample
+            def models = model_calls.collect { it.toString() }
+            return [meta, models]
+        }
+        .combine(ch_gcnv_caller_model.collect{it[1]}.toList())
+        .join(GATK4_DETERMINEGERMLINECONTIGPLOIDY.out.calls)
+        .set {ch_postproc_in}
+
+    GATK4_POSTPROCESSGERMLINECNVCALLS ( ch_postproc_in )
 
     def ch_versions = channel.empty()
 
