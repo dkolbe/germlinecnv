@@ -12,6 +12,8 @@ include { GATK4_GERMLINECNVCALLER             } from '../modules/nf-core/gatk4/g
 include { GATK4_POSTPROCESSGERMLINECNVCALLS   } from '../modules/nf-core/gatk4/postprocessgermlinecnvcalls/main'
 include { SAMTOOLS_INDEX                      } from '../modules/nf-core/samtools/index'
 
+include { AGGREGATE_COUNTS                    } from '../modules/local/aggregate_counts/main'
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -72,7 +74,7 @@ workflow GERMLINECNV {
         .join(GATK4_DETERMINEGERMLINECONTIGPLOIDY.out.calls)
         .combine(ch_gcnv_caller_model)
         .map({ meta, tsv, calls, meta2, model -> return [meta, tsv, [], calls, model ]})
-        .set{ch_gcnvc_in}
+        .set {ch_gcnvc_in}
 
     GATK4_GERMLINECNVCALLER ( ch_gcnvc_in )
 
@@ -91,6 +93,13 @@ workflow GERMLINECNV {
         .set {ch_postproc_in}
 
     GATK4_POSTPROCESSGERMLINECNVCALLS ( ch_postproc_in )
+
+    GATK4_POSTPROCESSGERMLINECNVCALLS.out.denoised
+         .collect(flat:false)
+         .map { it.transpose() }
+         .set {ch_aggregate_in}
+
+    AGGREGATE_COUNTS( ch_aggregate_in )
 
     def ch_versions = channel.empty()
 
