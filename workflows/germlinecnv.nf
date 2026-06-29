@@ -13,6 +13,7 @@ include { GATK4_POSTPROCESSGERMLINECNVCALLS   } from '../modules/nf-core/gatk4/p
 include { SAMTOOLS_INDEX                      } from '../modules/nf-core/samtools/index'
 
 include { AGGREGATE_COUNTS                    } from '../modules/local/aggregate_counts/main'
+include { CNV_VCF_TO_TABLE                    } from '../modules/local/cnv_vcf_to_table/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -93,6 +94,8 @@ workflow GERMLINECNV {
         .set {ch_postproc_in}
 
     GATK4_POSTPROCESSGERMLINECNVCALLS ( ch_postproc_in )
+
+    CNV_VCF_TO_TABLE( GATK4_POSTPROCESSGERMLINECNVCALLS.out.segments )
 
     GATK4_POSTPROCESSGERMLINECNVCALLS.out.denoised
          .collect(flat:false)
