@@ -9,9 +9,10 @@ library(AnnotationDbi)
 # FIXME strongly consider making single run per sample rather than whole batch
 
 # Template-interpolated by main.nf
+calls   <- "${calls_table}"
+counts  <- "${aggregated_counts}"
 regions <- "${regions}"
 txdb    <- "${txdb}"
-counts  <- "${aggregated_counts}"
 build   <- "${ucsc_genome}"
 
 # Error checking on parameters
@@ -19,7 +20,6 @@ build   <- "${ucsc_genome}"
 # Load standard tracks and annotation. We are retrieving UCSC refseq, so can be slow and may update on subsequent runs.
 gtrack <- GenomeAxisTrack(showTitle=TRUE,rotation.title=0,cex=1.2)
 
-# FIXME parameterize genome options
 # FIXME pull this out to pre-calculate the txDB once?
 # FIXME txdb is an optional param, will this work if not set? (default null)
 if(file.exists(txdb)) {
@@ -29,7 +29,6 @@ if(file.exists(txdb)) {
   saveDb(ucsc_refseq,txdb)
 }  
 
-# FIXME parameterize region list input
 probelist <- read.table(regions)
 # FIXME make fewer assumptions about columns
 probelist <- probelist[,1:4]
@@ -37,10 +36,10 @@ names(probelist) <- c("CHR","START","END","GENE")
 probelist_gr <- makeGRangesFromDataFrame(probelist,seqnames.field="CHR",start.field="START",end.field="END",keep.extra.columns = TRUE)
 # Add gene marker regions to problist
 # FIXME do this in a configurable, not hard-coded way
-probelist_gr <- append(probelist_gr,GRanges("15",IRanges(start=43891678,end=44010554),GENE="STRCregion"))
-probelist_gr <- append(probelist_gr,GRanges("16",IRanges(start=21675224,end=22588189),GENE="OTOAregion"))
-probelist_gr <- append(probelist_gr,GRanges("13",IRanges(start=20761532,end=21106120),GENE="GJB2region"))
-probelist_gr <- append(probelist_gr,GRanges("22",IRanges(start=19136435,end=21356679),GENE="TBX1region"))
+#probelist_gr <- append(probelist_gr,GRanges("15",IRanges(start=43891678,end=44010554),GENE="STRCregion"))
+#probelist_gr <- append(probelist_gr,GRanges("16",IRanges(start=21675224,end=22588189),GENE="OTOAregion"))
+#probelist_gr <- append(probelist_gr,GRanges("13",IRanges(start=20761532,end=21106120),GENE="GJB2region"))
+#probelist_gr <- append(probelist_gr,GRanges("22",IRanges(start=19136435,end=21356679),GENE="TBX1region"))
 
 genome(seqinfo(probelist_gr)) <- build
 
@@ -49,21 +48,16 @@ agg <- read.table(counts,sep="\t",header=TRUE)
 agg_gr <- makeGRangesFromDataFrame(agg,seqnames.field="CONTIG",start.field="START",end.field="END",keep.extra.columns = TRUE)
 genome(seqinfo(agg_gr)) <- build
 
-# FIXME should be able to just pull this from the table read above
+# FIXME should be able to just pull this from the table read above rather than reading the file again
 ids <- read.table(counts,sep="\t",header=FALSE,nrows=1,as.is=TRUE)[-(1:3)]
 
 # Load segmented call data
-for (samplename in ids) {
-  # FIXME match updated file naming pattern
-  # FIXME pull directly from table format instead, since we can be assured those exist?
-  segments <- read.table(paste("genotyped-segments-",samplename,".vcf",sep=""),comment.char = "#")
-  # FIXME
-  names(segments) <- c("CHR","POS","ID","REF","ALT","QUAL","FILTER","INFO","FORMAT","DATA")
-  segments <- segments[which(segments$ALT != '.'),]
+# for (samplename in ids) {
+for (samplename in $meta.id) {
+  segments <- read.table(calls,sep="\t",header=TRUE)
   if (isEmpty(segments)) { next; }
-  segments$END <- as.numeric(gsub("END=","",segments$INFO))
-  segments_gr <- makeGRangesFromDataFrame(segments,seqnames.field="CHR",
-                                          start.field="POS",end.field="END",
+  segments_gr <- makeGRangesFromDataFrame(segments,seqnames.field="CONTIG",
+                                          start.field="START",end.field="END",
                                           keep.extra.columns = TRUE)
   genome(seqinfo(segments_gr)) <- build
   
@@ -71,18 +65,18 @@ for (samplename in ids) {
   
   # Expand gene list to cover regions
   # FIXME do this in a configurable, not hard-coded way
-  if (any(c('STRC','STRCP1') %in% genelist)) {
-    genelist <- union(genelist,c('STRC','CATSPER2','STRCP1','STRCregion'))
-  }
-  if (any(c('OTOA') %in% genelist)) {
-    genelist <- union(genelist,c('OTOA','OTOAP1','OTOAregion'))
-  }
-  if (any(c('GJB2','GJB6','CRYL1') %in% genelist)) {
-    genelist <- union(genelist,c('GJB2','GJB6','CRYL1','GJB2region'))
-  }
-  if (any(c('TBX1') %in% genelist)) {
-    genelist <- union(genelist,c('TBX1','GSC2','RTN4R','ZNF74','THAP7','TBX1region'))
-  }
+  #if (any(c('STRC','STRCP1') %in% genelist)) {
+  #  genelist <- union(genelist,c('STRC','CATSPER2','STRCP1','STRCregion'))
+  #}
+  #if (any(c('OTOA') %in% genelist)) {
+  #  genelist <- union(genelist,c('OTOA','OTOAP1','OTOAregion'))
+  #}
+  #if (any(c('GJB2','GJB6','CRYL1') %in% genelist)) {
+  #  genelist <- union(genelist,c('GJB2','GJB6','CRYL1','GJB2region'))
+  #}
+  #if (any(c('TBX1') %in% genelist)) {
+  #  genelist <- union(genelist,c('TBX1','GSC2','RTN4R','ZNF74','THAP7','TBX1region'))
+  #}
   
   for (gene in genelist) {
     if (is.na(gene)) { next; } # Might need to deal with these, but later
@@ -110,7 +104,7 @@ for (samplename in ids) {
                             cex=2)
     if (length(unique(transcript(txTr)))>10) { stacking(txTr) <- "dense" }
     # FIXME check output name
-    png(file=paste(samplename,gene,".png",sep=""),width=1200,height=900)
+    png(file=paste(samplename,',',gene,".png",sep=""),width=1200,height=900)
     plotTracks(list(gtrack,overtrack,txTr),
                main=paste(samplename,gene),
                from=min(start(extent)),to=max(end(extent)),
