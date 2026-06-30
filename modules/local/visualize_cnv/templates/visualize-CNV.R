@@ -1,3 +1,5 @@
+#!/usr/bin/env Rscript
+
 # Environment setup
 library(Gviz)
 library(GenomicRanges)
@@ -6,24 +8,32 @@ library(AnnotationDbi)
 
 # FIXME strongly consider making single run per sample rather than whole batch
 
-# FIXME set to the work directory
-setwd("~/Desktop/temp/20220112-NGS687/")
+# Template-interpolated by main.nf
+regions <- "${regions}"
+txdb    <- "${txdb}"
+counts  <- "${aggregated_counts}"
+build   <- "${ucsc_genome}"
+
+# Error checking on parameters
 
 # Load standard tracks and annotation. We are retrieving UCSC refseq, so can be slow and may update on subsequent runs.
 gtrack <- GenomeAxisTrack(showTitle=TRUE,rotation.title=0,cex=1.2)
 
 # FIXME parameterize genome options
-if(file.exists('txdb.refseqhg19.sqlite')) {
-  ucsc_refseq = loadDb(file = 'txdb.refseqhg19.sqlite')
+# FIXME pull this out to pre-calculate the txDB once?
+# FIXME txdb is an optional param, will this work if not set? (default null)
+if(file.exists(txdb)) {
+  ucsc_refseq = loadDb(file = txdb)
 } else {
-  ucsc_refseq <- makeTxDbFromUCSC(genome="hg19",tablename="refGene")
-  saveDb(ucsc_refseq,'txdb.refseqhg19.sqlite')
+  ucsc_refseq <- makeTxDbFromUCSC(genome=build,tablename="refGene")
+  saveDb(ucsc_refseq,txdb)
 }  
 
 # FIXME parameterize region list input
-probelist <- read.table("otoscope_v9_probes_CNVsubset.bed")
+probelist <- read.table(regions)
 # FIXME make fewer assumptions about columns
-names(probelist) <- c("CHR","START","END","GENE","INHERITANCE","LOCUS","TRANSCRIPT","TIER")
+probelist <- probelist[,1:4]
+names(probelist) <- c("CHR","START","END","GENE")
 probelist_gr <- makeGRangesFromDataFrame(probelist,seqnames.field="CHR",start.field="START",end.field="END",keep.extra.columns = TRUE)
 # Add gene marker regions to problist
 # FIXME do this in a configurable, not hard-coded way
@@ -32,22 +42,20 @@ probelist_gr <- append(probelist_gr,GRanges("16",IRanges(start=21675224,end=2258
 probelist_gr <- append(probelist_gr,GRanges("13",IRanges(start=20761532,end=21106120),GENE="GJB2region"))
 probelist_gr <- append(probelist_gr,GRanges("22",IRanges(start=19136435,end=21356679),GENE="TBX1region"))
 
-# FIXME
-genome(seqinfo(probelist_gr)) <- "GRCh37"
+genome(seqinfo(probelist_gr)) <- build
 
 # Load aggregated copy-number data for a batch
-# FIXME parameterize input
-agg <- read.table("aggregated_copy_numbers.txt",sep="\t",header=TRUE)
+agg <- read.table(counts,sep="\t",header=TRUE)
 agg_gr <- makeGRangesFromDataFrame(agg,seqnames.field="CONTIG",start.field="START",end.field="END",keep.extra.columns = TRUE)
-# FIXME 
-genome(seqinfo(agg_gr)) <- "GRCh37"
+genome(seqinfo(agg_gr)) <- build
 
-# FIXME
-ids <- read.table("aggregated_copy_numbers.txt",sep="\t",header=FALSE,nrows=1,as.is=TRUE)[-(1:3)]
+# FIXME should be able to just pull this from the table read above
+ids <- read.table(counts,sep="\t",header=FALSE,nrows=1,as.is=TRUE)[-(1:3)]
 
 # Load segmented call data
 for (samplename in ids) {
   # FIXME match updated file naming pattern
+  # FIXME pull directly from table format instead, since we can be assured those exist?
   segments <- read.table(paste("genotyped-segments-",samplename,".vcf",sep=""),comment.char = "#")
   # FIXME
   names(segments) <- c("CHR","POS","ID","REF","ALT","QUAL","FILTER","INFO","FORMAT","DATA")
@@ -57,8 +65,7 @@ for (samplename in ids) {
   segments_gr <- makeGRangesFromDataFrame(segments,seqnames.field="CHR",
                                           start.field="POS",end.field="END",
                                           keep.extra.columns = TRUE)
-  # FIXME
-  genome(seqinfo(segments_gr)) <- "GRCh37"
+  genome(seqinfo(segments_gr)) <- build
   
   genelist <- unique(mcols(subsetByOverlaps(probelist_gr,segments_gr))$GENE)
   

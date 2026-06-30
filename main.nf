@@ -33,9 +33,12 @@ workflow DKOLBE_GERMLINECNV {
     fasta
     fai
     dict
+    ucsc_genome
+    gcnv_regions
     gcnv_model_interval_list // channel: [meta, gcnv_target_interval_list]
     gcnv_ploidy_model
     gcnv_caller_model
+    txdb
 
     main:
     //samplesheet.view()
@@ -49,9 +52,12 @@ workflow DKOLBE_GERMLINECNV {
         fasta,
         fai,
         dict,
+        ucsc_genome,
+        gcnv_regions,
         gcnv_model_interval_list,
         gcnv_ploidy_model,
         gcnv_caller_model,
+        txdb,
         params.outdir,
     )
 }
@@ -83,9 +89,12 @@ workflow {
     ch_fasta                    = Channel.fromPath(params.fasta                   ).map { it -> [[id:it.simpleName], it] }.collect()
     ch_fai                      = Channel.fromPath(params.fai                     ).map { it -> [[id:it.simpleName], it] }.collect()
     ch_dict                     = Channel.fromPath(params.dict                    ).map { it -> [[id:it.simpleName], it] }.collect()
+    ucsc_genome                 = params.ucsc_genome
+    ch_gcnv_regions             = Channel.fromPath(params.gcnv_regions            ).map { it -> [[id:it.simpleName], it] }.collect()
     ch_gcnv_model_interval_list = Channel.fromPath(params.gcnv_model_interval_list).map { it -> [[id:it.simpleName], it] }.collect()
     ch_gcnv_ploidy_model        = Channel.fromPath(params.gcnv_ploidy_model       ).map { it -> [[id:it.simpleName], it] }.collect()
     ch_gcnv_caller_model        = Channel.fromPath(params.gcnv_caller_model       ).map { it -> [[id:it.simpleName], it] }.collect()
+    ch_txdb                     = Channel.fromPath(params.txdb                    ).map { it -> [[id:it.simpleName], it] }.collect()
 
     //
     // WORKFLOW: Run main workflow
@@ -96,9 +105,12 @@ workflow {
         ch_fasta,
         ch_fai,
         ch_dict,
+        ucsc_genome,
+        ch_gcnv_regions,
         ch_gcnv_model_interval_list,
         ch_gcnv_ploidy_model,
-        ch_gcnv_caller_model
+        ch_gcnv_caller_model,
+        ch_txdb
     )
     //
     // SUBWORKFLOW: Run completion tasks

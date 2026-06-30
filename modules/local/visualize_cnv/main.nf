@@ -3,9 +3,15 @@ process VISUALIZE_CNV {
     label 'process_medium'
 
     # FIXME find and pull an appropriate container
+    conda "${moduleDir}/environment.yml"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'community.wave.seqera.io/library/bioconductor-annotationdbi_bioconductor-genomicfeatures_bioconductor-genomicranges_bioconductor-gviz:6b706937e78bb65b':
+        'community.wave.seqera.io/library/bioconductor-annotationdbi_bioconductor-genomicfeatures_bioconductor-genomicranges_bioconductor-gviz:4ef161684da1a400' }"
 
     input:
-
+    path(regions)
+    path(txdb)
+    val(ucsc_genome)
 
     output:
     tuple val(meta), path("*.png"), emit: png

@@ -31,9 +31,12 @@ workflow GERMLINECNV {
     ch_fasta
     ch_fai
     ch_dict
+    ucsc_genome
+    ch_regions
     ch_interval_list
     ch_ploidy_model
     ch_gcnv_caller_model
+    ch_txdb
     outdir
 
     main:

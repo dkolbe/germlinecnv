@@ -73,6 +73,21 @@
                     "pattern": "^\\S+\\.dict$",
                     "format": "file-path",
                     "fa_icon": "far fa-file"
+                },
+                "ucsc_genome": {
+                    "type": "string",
+                    "fa_icon": "fas fa-font",
+                    "description": "Genome ID for pulling transcripts from UCSC Genome Browser",
+                    "enum": [
+                        "hg19",
+                        "hg38"
+                    ]
+                },
+                "txdb": {
+                    "type": "string",
+                    "fa_icon": "far fa-file",
+                    "description": "Database of transcripts",
+                    "format": "file-path"
                 }
             },
             "required": [
@@ -85,16 +100,12 @@
             "description": "Define an existing gcnv model",
             "default": "",
             "properties": {
-                "gcnv_caller_model": {
+                "gcnv_regions": {
                     "type": "string",
-                    "fa_icon": "far fa-folder-open",
-                    "description": "CNV model from reference cohort"
-                },
-                "gcnv_ploidy_model": {
-                    "type": "string",
-                    "description": "Chromosome ploidy model from reference cohort",
-                    "format": "directory-path",
-                    "fa_icon": "far fa-folder-open"
+                    "description": "Bed file giving regions of interested, including gene/locus ID in column 4",
+                    "fa_icon": "far fa-file",
+                    "pattern": "^\\S+\\.bed$",
+                    "format": "file-path"
                 },
                 "gcnv_model_interval_list": {
                     "type": "string",
@@ -102,12 +113,24 @@
                     "pattern": "^\\S+\\.interval_list$",
                     "format": "file-path",
                     "fa_icon": "far fa-file"
+                },
+                "gcnv_ploidy_model": {
+                    "type": "string",
+                    "description": "Chromosome ploidy model from reference cohort",
+                    "format": "directory-path",
+                    "fa_icon": "far fa-folder-open"
+                },
+                "gcnv_caller_model": {
+                    "type": "string",
+                    "fa_icon": "far fa-folder-open",
+                    "description": "CNV model from reference cohort"
                 }
             },
             "required": [
-                "gcnv_caller_model",
+                "gcnv_regions",
+                "gcnv_model_interval_list",
                 "gcnv_ploidy_model",
-                "gcnv_model_interval_list"
+                "gcnv_caller_model"
             ]
         },
         "generic_options": {
