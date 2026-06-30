@@ -3,13 +3,14 @@ process AGGREGATE_COUNTS {
     label "process_single"
 
     input:
+    val batch_meta
     tuple val(meta), path(counts)
 
     output:
-    path("aggregate_counts.tsv"), emit: table
+    path("*.aggregate_counts.tsv"), emit: table
 
     script:
-    def out_file = "aggregate_counts.tsv"
+    def out_file = "${batch_meta.id}.aggregate_counts.tsv"
     def first_file = counts.collect()[0]
     def header = meta ? meta.id.collect().join('\t') : ""
     def paste_argument = counts ? counts.collect{"<( grep -v \"^@\" $it | cut -f 4 | tail -n +2)"}.join(' ') : ""
@@ -20,7 +21,8 @@ process AGGREGATE_COUNTS {
     """
 
     stub:
+    def out_file = "${batch_meta.id}.aggregate_counts.tsv"
     """
-    touch aggregate_counts.tsv
+    touch ${out_file}
     """
 }

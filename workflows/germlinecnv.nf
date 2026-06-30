@@ -113,7 +113,7 @@ workflow GERMLINECNV {
          .map { it.transpose() }
          .set {ch_aggregate_in}
 
-    AGGREGATE_COUNTS( ch_aggregate_in )
+    AGGREGATE_COUNTS( batch_meta, ch_aggregate_in )
 
     def ch_versions = channel.empty()
 
