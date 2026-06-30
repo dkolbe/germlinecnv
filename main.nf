@@ -28,6 +28,7 @@ include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_germ
 workflow DKOLBE_GERMLINECNV {
 
     take:
+    batch_meta
     samplesheet // channel: samplesheet read in from --input
     fasta
     fai
@@ -43,6 +44,7 @@ workflow DKOLBE_GERMLINECNV {
     // WORKFLOW: Run pipeline
     //
     GERMLINECNV (
+        batch_meta,
         samplesheet,
         fasta,
         fai,
@@ -77,6 +79,7 @@ workflow {
         params.show_hidden
     )
 
+    batch_meta                  = [id:params.batch]
     ch_fasta                    = Channel.fromPath(params.fasta                   ).map { it -> [[id:it.simpleName], it] }.collect()
     ch_fai                      = Channel.fromPath(params.fai                     ).map { it -> [[id:it.simpleName], it] }.collect()
     ch_dict                     = Channel.fromPath(params.dict                    ).map { it -> [[id:it.simpleName], it] }.collect()
@@ -88,6 +91,7 @@ workflow {
     // WORKFLOW: Run main workflow
     //
     DKOLBE_GERMLINECNV (
+        batch_meta,
         PIPELINE_INITIALISATION.out.samplesheet,
         ch_fasta,
         ch_fai,

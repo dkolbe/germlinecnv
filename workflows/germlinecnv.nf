@@ -6,6 +6,8 @@
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_germlinecnv_pipeline'
+
+include { CSVTK_CONCAT                        } from '../modules/nf-core/csvtk/concat/main'
 include { GATK4_COLLECTREADCOUNTS             } from '../modules/nf-core/gatk4/collectreadcounts/main'
 include { GATK4_DETERMINEGERMLINECONTIGPLOIDY } from '../modules/nf-core/gatk4/determinegermlinecontigploidy/main'
 include { GATK4_GERMLINECNVCALLER             } from '../modules/nf-core/gatk4/germlinecnvcaller/main'
@@ -24,6 +26,7 @@ include { CNV_VCF_TO_TABLE                    } from '../modules/local/cnv_vcf_t
 workflow GERMLINECNV {
 
     take:
+    batch_meta
     ch_samplesheet // channel: samplesheet read in from --input
     ch_fasta
     ch_fai
@@ -96,6 +99,14 @@ workflow GERMLINECNV {
     GATK4_POSTPROCESSGERMLINECNVCALLS ( ch_postproc_in )
 
     CNV_VCF_TO_TABLE( GATK4_POSTPROCESSGERMLINECNVCALLS.out.segments )
+
+    CNV_VCF_TO_TABLE.out.table
+        .map { meta, table -> return [table]}
+        .collect()
+        .map { table -> return [[id:batch_meta.id], table] }
+        .set {ch_concat_in}
+
+    CSVTK_CONCAT( ch_concat_in, "tsv", "tsv" )
 
     GATK4_POSTPROCESSGERMLINECNVCALLS.out.denoised
          .collect(flat:false)

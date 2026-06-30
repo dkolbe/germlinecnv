@@ -11,7 +11,7 @@ process CNV_VCF_TO_TABLE {
     tuple val(meta), path(vcf)
 
     output:
-    path("*.CNV_calls.tsv"), emit: table
+    tuple val(meta), path("*.CNV_calls.tsv"), emit: table
 
     script:
     """

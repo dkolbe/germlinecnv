@@ -32,6 +32,12 @@
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
                     "fa_icon": "fas fa-folder-open"
                 },
+                "batch": {
+                    "type": "string",
+                    "description": "Batch-level identifier for the run",
+                    "default": "batch",
+                    "fa_icon": "fas fa-font"
+                },
                 "email": {
                     "type": "string",
                     "description": "Email address for completion summary.",
@@ -99,9 +105,9 @@
                 }
             },
             "required": [
+                "gcnv_caller_model",
                 "gcnv_ploidy_model",
-                "gcnv_model_interval_list",
-                "gcnv_caller_model"
+                "gcnv_model_interval_list"
             ]
         },
         "generic_options": {
