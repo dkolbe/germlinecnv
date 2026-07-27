@@ -2,7 +2,6 @@ process VISUALIZE_CNV {
     tag "$meta.id"
     label 'process_medium'
 
-    # FIXME find and pull an appropriate container
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'community.wave.seqera.io/library/bioconductor-annotationdbi_bioconductor-genomicfeatures_bioconductor-genomicranges_bioconductor-gviz:6b706937e78bb65b':

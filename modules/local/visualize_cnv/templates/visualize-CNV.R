@@ -13,20 +13,18 @@ calls   <- "${calls_table}"
 counts  <- "${aggregated_counts}"
 regions <- "${regions}"
 txdb    <- "${txdb}"
-build   <- "${ucsc_genome}"
+buildID <- "${ucsc_genome}"
 
 # Error checking on parameters
 
 # Load standard tracks and annotation. We are retrieving UCSC refseq, so can be slow and may update on subsequent runs.
 gtrack <- GenomeAxisTrack(showTitle=TRUE,rotation.title=0,cex=1.2)
 
-# FIXME pull this out to pre-calculate the txDB once?
-# FIXME txdb is an optional param, will this work if not set? (default null)
 if(file.exists(txdb)) {
   ucsc_refseq = loadDb(file = txdb)
 } else {
-  ucsc_refseq <- makeTxDbFromUCSC(genome=build,tablename="refGene")
-  saveDb(ucsc_refseq,txdb)
+  # ERROR
+  quit(status=1)
 }  
 
 probelist <- read.table(regions)
@@ -41,25 +39,25 @@ probelist_gr <- makeGRangesFromDataFrame(probelist,seqnames.field="CHR",start.fi
 #probelist_gr <- append(probelist_gr,GRanges("13",IRanges(start=20761532,end=21106120),GENE="GJB2region"))
 #probelist_gr <- append(probelist_gr,GRanges("22",IRanges(start=19136435,end=21356679),GENE="TBX1region"))
 
-genome(seqinfo(probelist_gr)) <- build
+genome(seqinfo(probelist_gr)) <- buildID
 
 # Load aggregated copy-number data for a batch
 agg <- read.table(counts,sep="\t",header=TRUE)
 agg_gr <- makeGRangesFromDataFrame(agg,seqnames.field="CONTIG",start.field="START",end.field="END",keep.extra.columns = TRUE)
-genome(seqinfo(agg_gr)) <- build
+genome(seqinfo(agg_gr)) <- buildID
 
 # FIXME should be able to just pull this from the table read above rather than reading the file again
 ids <- read.table(counts,sep="\t",header=FALSE,nrows=1,as.is=TRUE)[-(1:3)]
 
 # Load segmented call data
 # for (samplename in ids) {
-for (samplename in $meta.id) {
+for (samplename in ${meta.id}) {
   segments <- read.table(calls,sep="\t",header=TRUE)
   if (isEmpty(segments)) { next; }
   segments_gr <- makeGRangesFromDataFrame(segments,seqnames.field="CONTIG",
                                           start.field="START",end.field="END",
                                           keep.extra.columns = TRUE)
-  genome(seqinfo(segments_gr)) <- build
+  genome(seqinfo(segments_gr)) <- buildID
   
   genelist <- unique(mcols(subsetByOverlaps(probelist_gr,segments_gr))$GENE)
   

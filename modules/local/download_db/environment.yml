@@ -1,0 +1,8 @@
+channels:
+- conda-forge
+- bioconda
+dependencies:
+- bioconda::bioconductor-annotationdbi=1.72.0
+- bioconda::bioconductor-genomicfeatures=1.62.0
+- bioconda::bioconductor-genomicranges=1.62.1
+- bioconda::bioconductor-gviz=1.54.0
