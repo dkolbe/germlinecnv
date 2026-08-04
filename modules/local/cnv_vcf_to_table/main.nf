@@ -15,7 +15,7 @@ process CNV_VCF_TO_TABLE {
 
     script:
     """
-    echo "SAMPLE\tCONTIG\tSTART\tEND\tREF\tALT\tGenotype\tCopyNumber\tQUAL\n" > ${meta.id}.CNV_calls.tsv
+    echo "SAMPLE\tCONTIG\tSTART\tEND\tREF\tALT\tGenotype\tCopyNumber\tNumWindows\tQUAL\n" > ${meta.id}.CNV_calls.tsv
     bcftools query \\
          -i 'GT="alt"' \\
          -f "[%SAMPLE]\t%CHROM\t%POS\t%INFO/END\t%REF\t%ALT\t[%GT]\t[%CN]\t[%NP]\t%QUAL\n" \\
