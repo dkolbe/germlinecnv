@@ -1,10 +1,12 @@
 #!/usr/bin/env Rscript
 
 # Environment setup
+suppressPackgeStartupMessages({
 library(Gviz)
 library(GenomicRanges)
 library(GenomicFeatures)
 library(AnnotationDbi)
+})
 
 # FIXME strongly consider making single run per sample rather than whole batch
 
@@ -16,14 +18,20 @@ txdb    <- "${txdb}"
 buildID <- "${ucsc_genome}"
 
 # Error checking on parameters
+sprintf("Calls: %s",calls)
+sprintf("Counts: %s",counts)
+sprintf("Regions: %s",regions)
+sprintf("txdb: %s",txdb)
+sprintf("Build: %s",buildID)
 
 # Load standard tracks and annotation. We are retrieving UCSC refseq, so can be slow and may update on subsequent runs.
 gtrack <- GenomeAxisTrack(showTitle=TRUE,rotation.title=0,cex=1.2)
 
-if(file.exists(txdb)) {
+if(txdb && file.exists(txdb)) {
   ucsc_refseq = loadDb(file = txdb)
 } else {
   # ERROR
+  warning("nf-core module implementation requires txdb to be set up in advance, use DOWNLOAD_DB")
   quit(status=1)
 }  
 
@@ -59,7 +67,7 @@ for (samplename in ${meta.id}) {
                                           keep.extra.columns = TRUE)
   genome(seqinfo(segments_gr)) <- buildID
   
-  genelist <- unique(mcols(subsetByOverlaps(probelist_gr,segments_gr))$GENE)
+  genelist <- unique(mcols(subsetByOverlaps(probelist_gr,segments_gr))\$GENE)
   
   # Expand gene list to cover regions
   # FIXME do this in a configurable, not hard-coded way
@@ -78,7 +86,7 @@ for (samplename in ${meta.id}) {
   
   for (gene in genelist) {
     if (is.na(gene)) { next; } # Might need to deal with these, but later
-    extent <- probelist_gr[which(probelist_gr$GENE==gene),]+50
+    extent <- probelist_gr[which(probelist_gr\$GENE==gene),]+50
   
     backgroundtrack <- DataTrack(subsetByOverlaps(agg_gr,extent),
                                  name="Copies",col="gray",ylim=c(0,5),
@@ -87,10 +95,10 @@ for (samplename in ${meta.id}) {
     current <- subsetByOverlaps(current,extent)
     sampletrack <- DataTrack(current,col="black",ylim=c(0,5),cex=1)
     deltrack <- DataTrack(subsetByOverlaps(current,
-                                           segments_gr[which(segments_gr$ALT == "<DEL>"),]),
+                                           segments_gr[which(segments_gr\$ALT == "<DEL>"),]),
                         col="red",ylim=c(0,5),cex=1,legend=FALSE)
     duptrack <- DataTrack(subsetByOverlaps(current,
-                                           segments_gr[which(segments_gr$ALT == "<DUP>"),]),
+                                           segments_gr[which(segments_gr\$ALT == "<DUP>"),]),
                         col="blue",ylim=c(0,5),cex=1,legend=FALSE)
     overtrack <- OverlayTrack(list(backgroundtrack,sampletrack,deltrack,duptrack))
     names(gtrack) <- as.vector(runValue(seqnames(extent)))
