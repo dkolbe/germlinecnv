@@ -94,7 +94,9 @@ workflow {
     ch_gcnv_model_interval_list = Channel.fromPath(params.gcnv_model_interval_list).map { it -> [[id:it.simpleName], it] }.collect()
     ch_gcnv_ploidy_model        = Channel.fromPath(params.gcnv_ploidy_model       ).map { it -> [[id:it.simpleName], it] }.collect()
     ch_gcnv_caller_model        = Channel.fromPath(params.gcnv_caller_model       ).map { it -> [[id:it.simpleName], it] }.collect()
-    ch_txdb                     = Channel.fromPath(params.txdb                    ).map { it -> [[id:it.simpleName], it] }.collect()
+    ch_txdb                     = params.txdb ?
+                                  Channel.fromPath(params.txdb                    ).map { it -> [[id:it.simpleName], it] }.collect()
+                                  : Channel.empty()
 
     //
     // WORKFLOW: Run main workflow
