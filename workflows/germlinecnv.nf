@@ -120,12 +120,16 @@ workflow GERMLINECNV {
     AGGREGATE_COUNTS( batch_meta, ch_aggregate_in )
 
     CNV_VCF_TO_TABLE.out
-        .view()
         .map { meta, calls -> return [meta.id, meta, calls] }
         .join(GATK4_POSTPROCESSGERMLINECNVCALLS.out.denoised.map({ meta, counts -> return [meta.id, meta, counts] }))
         .map { id, meta1, calls, meta2, counts -> return [meta1, calls, counts] }
         .set {ch_visualize_in}
-    VISUALIZE_CNV( ch_visualize_in, AGGREGATE_COUNTS.out.table, ch_regions, ch_txdb, ucsc_genome)
+
+    VISUALIZE_CNV( ch_visualize_in,
+                   AGGREGATE_COUNTS.out.table,
+                   ch_regions.map { meta, file -> return file },
+                   ch_txdb,
+                   ucsc_genome)
 
     def ch_versions = channel.empty()
 
