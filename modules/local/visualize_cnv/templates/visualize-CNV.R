@@ -32,14 +32,14 @@ probelist <- read.table(regions)
 probelist <- probelist[,1:4]
 names(probelist) <- c("CHR","START","END","GENE")
 probelist_gr <- makeGRangesFromDataFrame(probelist,seqnames.field="CHR",start.field="START",end.field="END",keep.extra.columns = TRUE)
+genome(seqinfo(probelist_gr)) <- buildID
+
 # Add gene marker regions to problist
 # FIXME do this in a configurable, not hard-coded way
 #probelist_gr <- append(probelist_gr,GRanges("15",IRanges(start=43891678,end=44010554),GENE="STRCregion"))
 #probelist_gr <- append(probelist_gr,GRanges("16",IRanges(start=21675224,end=22588189),GENE="OTOAregion"))
 #probelist_gr <- append(probelist_gr,GRanges("13",IRanges(start=20761532,end=21106120),GENE="GJB2region"))
 #probelist_gr <- append(probelist_gr,GRanges("22",IRanges(start=19136435,end=21356679),GENE="TBX1region"))
-
-genome(seqinfo(probelist_gr)) <- buildID
 
 # Load aggregated copy-number data for a batch
 agg <- read.table(counts,sep="\t",header=TRUE)

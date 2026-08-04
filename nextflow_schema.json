@@ -81,7 +81,8 @@
                     "enum": [
                         "hg19",
                         "hg38"
-                    ]
+                    ],
+                    "default": "hg38"
                 },
                 "txdb": {
                     "type": "string",
@@ -110,7 +111,7 @@
                 "gcnv_model_interval_list": {
                     "type": "string",
                     "description": "Annotated and filtered interval list for countReads",
-                    "pattern": "^\\S+\\.interval_list$",
+                    "pattern": "^(\\S+)?interval_list(\\.tsv)?$",
                     "format": "file-path",
                     "fa_icon": "far fa-file"
                 },
