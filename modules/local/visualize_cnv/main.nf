@@ -18,8 +18,14 @@ process VISUALIZE_CNV {
     tuple val(meta), path("*.png"), emit: png
 
     script:
-    template 'visualize-CNV.R'
+    //template 'visualize-CNV.R'
+    """
+    echo "Commented out Rscript..."
+    """
 
     stub:
+    """
+    echo "Commented out Rscript..."
+    """
 
 }

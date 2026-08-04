@@ -16,6 +16,7 @@ include { SAMTOOLS_INDEX                      } from '../modules/nf-core/samtool
 
 include { AGGREGATE_COUNTS                    } from '../modules/local/aggregate_counts/main'
 include { CNV_VCF_TO_TABLE                    } from '../modules/local/cnv_vcf_to_table/main'
+include { VISUALIZE_CNV                       } from '../modules/local/visualize_cnv/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -117,6 +118,14 @@ workflow GERMLINECNV {
          .set {ch_aggregate_in}
 
     AGGREGATE_COUNTS( batch_meta, ch_aggregate_in )
+
+    CNV_VCF_TO_TABLE.out
+        .view()
+        .map { meta, calls -> return [meta.id, meta, calls] }
+        .join(GATK4_POSTPROCESSGERMLINECNVCALLS.out.denoised.map({ meta, counts -> return [meta.id, meta, counts] }))
+        .map { id, meta1, calls, meta2, counts -> return [meta1, calls, counts] }
+        .set {ch_visualize_in}
+    VISUALIZE_CNV( ch_visualize_in, AGGREGATE_COUNTS.out.table, ch_regions, ch_txdb, ucsc_genome)
 
     def ch_versions = channel.empty()
 
