@@ -1,21 +1,28 @@
 process DOWNLOAD_DB {
-    tag "$meta.id"
+    tag "txdb:$ucsc_genome"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'community.wave.seqera.io/library/bioconductor-annotationdbi_bioconductor-genomicfeatures_bioconductor-genomicranges_bioconductor-gviz:6b706937e78bb65b':
-        'community.wave.seqera.io/library/bioconductor-annotationdbi_bioconductor-genomicfeatures_bioconductor-genomicranges_bioconductor-gviz:4ef161684da1a400' }"
+        'oras://community.wave.seqera.io/library/bioconductor-annotationdbi_bioconductor-genomeinfodbdata_bioconductor-genomicfeatures_bioconductor-genomicranges_pruned:2256b92d8b38ab36':
+        'community.wave.seqera.io/library/bioconductor-annotationdbi_bioconductor-genomeinfodbdata_bioconductor-genomicfeatures_bioconductor-genomicranges_pruned:280edc874ea7fec2' }"
 
     input:
-    val(ucsc_genome)
+    tuple val(need_txdb), val(ucsc_genome)
+
+    //when:
+    //need_txdb == 'NEED_TXDB'
 
     output:
-    path(txdb), emit: txdb
+    tuple val(id:txdb_name), path(txdb_name), emit: txdb
 
     script:
+    txdb_name = "txdb.refseq.${ucsc_genome}.sqlite"
     template 'download-DB.R'
 
     stub:
-    touch "txdb.refseq.$ucsc_genome.sqlite"
+    txdb_name = "txdb.refseq.${ucsc_genome}.sqlite"
+    """
+    touch "$txdb_name"
+    """
 }

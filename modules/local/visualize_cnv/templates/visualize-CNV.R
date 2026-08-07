@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 # Environment setup
-suppressPackgeStartupMessages({
+suppressPackageStartupMessages({
 library(Gviz)
 library(GenomicRanges)
 library(GenomicFeatures)

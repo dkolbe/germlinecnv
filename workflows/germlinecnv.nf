@@ -16,6 +16,7 @@ include { SAMTOOLS_INDEX                      } from '../modules/nf-core/samtool
 
 include { AGGREGATE_COUNTS                    } from '../modules/local/aggregate_counts/main'
 include { CNV_VCF_TO_TABLE                    } from '../modules/local/cnv_vcf_to_table/main'
+include { DOWNLOAD_DB                         } from '../modules/local/download_db/main'
 include { VISUALIZE_CNV                       } from '../modules/local/visualize_cnv/main'
 
 /*
@@ -118,6 +119,10 @@ workflow GERMLINECNV {
          .set {ch_aggregate_in}
 
     AGGREGATE_COUNTS( batch_meta, ch_aggregate_in )
+
+    ch_txdb | ifEmpty { ['NEED_TXDB', ucsc_genome] } | DOWNLOAD_DB
+    // DOWNLOAD_DB( ucsc_genome )
+    // DOWNLOAD_DB.out.txdb
 
     CNV_VCF_TO_TABLE.out
         .map { meta, calls -> return [meta.id, meta, calls] }
