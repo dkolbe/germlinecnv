@@ -121,8 +121,7 @@ workflow GERMLINECNV {
     AGGREGATE_COUNTS( batch_meta, ch_aggregate_in )
 
     ch_txdb | ifEmpty { ['NEED_TXDB', ucsc_genome] } | DOWNLOAD_DB
-    // DOWNLOAD_DB( ucsc_genome )
-    // DOWNLOAD_DB.out.txdb
+    DOWNLOAD_DB.out.set { ch_txdb }
 
     CNV_VCF_TO_TABLE.out
         .map { meta, calls -> return [meta.id, meta, calls] }
@@ -133,7 +132,7 @@ workflow GERMLINECNV {
     VISUALIZE_CNV( ch_visualize_in,
                    AGGREGATE_COUNTS.out.table,
                    ch_regions.map { meta, file -> return file },
-                   ch_txdb,
+                   ch_txdb.map { meta, file -> return file },
                    ucsc_genome)
 
     def ch_versions = channel.empty()
