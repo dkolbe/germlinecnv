@@ -27,7 +27,7 @@ sprintf("Build: %s",buildID)
 # Load standard tracks and annotation. We are retrieving UCSC refseq, so can be slow and may update on subsequent runs.
 gtrack <- GenomeAxisTrack(showTitle=TRUE,rotation.title=0,cex=1.2)
 
-if(txdb && file.exists(txdb)) {
+if(file.exists(txdb)) {
   ucsc_refseq = loadDb(file = txdb)
 } else {
   # ERROR
@@ -59,7 +59,7 @@ ids <- read.table(counts,sep="\t",header=FALSE,nrows=1,as.is=TRUE)[-(1:3)]
 
 # Load segmented call data
 # for (samplename in ids) {
-for (samplename in ${meta.id}) {
+for (samplename in "${meta.id}") {
   segments <- read.table(calls,sep="\t",header=TRUE)
   if (isEmpty(segments)) { next; }
   segments_gr <- makeGRangesFromDataFrame(segments,seqnames.field="CONTIG",
@@ -90,7 +90,7 @@ for (samplename in ${meta.id}) {
   
     backgroundtrack <- DataTrack(subsetByOverlaps(agg_gr,extent),
                                  name="Copies",col="gray",ylim=c(0,5),
-                                 baseline=c(0,1,2,3,4,5),cex=.5)
+                                 baseline=2,cex=.5)
     current <- agg_gr[,make.names(samplename)]
     current <- subsetByOverlaps(current,extent)
     sampletrack <- DataTrack(current,col="black",ylim=c(0,5),cex=1)
@@ -109,8 +109,7 @@ for (samplename in ${meta.id}) {
                             end=max(end(extent)),
                             cex=2)
     if (length(unique(transcript(txTr)))>10) { stacking(txTr) <- "dense" }
-    # FIXME check output name
-    png(file=paste(samplename,',',gene,".png",sep=""),width=1200,height=900)
+    png(file=paste(samplename,'.',gene,".png",sep=""),width=1200,height=900)
     plotTracks(list(gtrack,overtrack,txTr),
                main=paste(samplename,gene),
                from=min(start(extent)),to=max(end(extent)),

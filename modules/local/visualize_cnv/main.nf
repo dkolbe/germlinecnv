@@ -15,7 +15,7 @@ process VISUALIZE_CNV {
     val(ucsc_genome)
 
     output:
-    tuple val(meta), path("*.png"), emit: png
+    tuple val(meta), path("*.png"), emit: png, optional: true
 
     script:
     """

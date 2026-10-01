@@ -132,7 +132,7 @@ workflow GERMLINECNV {
     VISUALIZE_CNV( ch_visualize_in,
                    AGGREGATE_COUNTS.out.table,
                    ch_regions.map { meta, file -> return file },
-                   ch_txdb.map { meta, file -> return file },
+                   ch_txdb.map { meta, file -> return file }.first(),
                    ucsc_genome)
 
     def ch_versions = channel.empty()
