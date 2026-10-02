@@ -9,3 +9,4 @@ gcnv_regions: '/Dedicated/MORL-Research/Users/dkolbe/GATK-CNV-reference/otoscope
 gcnv_ploidy_model: '/Dedicated/MORL-Research/Users/dkolbe/GATK-CNV-reference/otoscope_v9_GRCh38/results/germlinecnvcaller/determinecontigploidy/otoscope_v9_GRCh38-model/'
 gcnv_model_interval_list: './data/otoscope_v9_GRCh38.interval_list'
 gcnv_caller_model: '/Dedicated/MORL-Research/Users/dkolbe/GATK-CNV-reference/otoscope_v9_GRCh38/results/germlinecnvcaller/germlinecnvcaller/1scattered-cnv-model/1scattered-model'
+txdb: './data/txdb.refseq.hg38.sqlite'

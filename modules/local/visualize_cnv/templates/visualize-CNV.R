@@ -55,8 +55,8 @@ genome(seqinfo(sample_counts_gr)) <- buildID
 
 # FIXME should be able to just pull this from the table read above rather than reading the file again
 # ... but reading just the first line is NBD
-# Replaced with only processing the single sample passed with metadata rather than all in the aggregated counts dataset
 # ids <- read.table(bg_counts,sep="\t",header=FALSE,nrows=1,as.is=TRUE)[-(1:3)]
+# Replaced with only processing the single sample passed with metadata rather than all in the aggregated counts dataset
 
 # Load segmented call data
 # for (samplename in ids) {

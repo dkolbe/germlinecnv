@@ -39,6 +39,7 @@ workflow GERMLINECNV {
     ch_ploidy_model
     ch_gcnv_caller_model
     ch_txdb
+    download_txdb
     outdir
 
     main:
@@ -120,8 +121,12 @@ workflow GERMLINECNV {
 
     AGGREGATE_COUNTS( batch_meta, ch_aggregate_in )
 
-    ch_txdb | ifEmpty { ['NEED_TXDB', ucsc_genome] } | DOWNLOAD_DB
-    DOWNLOAD_DB.out.set { ch_txdb }
+    if (download_txdb) {
+        DOWNLOAD_DB(ucsc_genome)
+        DOWNLOAD_DB.out.set { ch_txdb }
+    }
+    //ch_txdb | ifEmpty { tuple('NEED_TXDB', ucsc_genome) } | DOWNLOAD_DB
+    //DOWNLOAD_DB.out.set { ch_txdb }
 
     CNV_VCF_TO_TABLE.out
         .map { meta, calls -> return [meta.id, meta, calls] }

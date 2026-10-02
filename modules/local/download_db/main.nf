@@ -8,10 +8,7 @@ process DOWNLOAD_DB {
         'community.wave.seqera.io/library/bioconductor-annotationdbi_bioconductor-genomeinfodbdata_bioconductor-genomicfeatures_bioconductor-genomicranges_pruned:280edc874ea7fec2' }"
 
     input:
-    tuple val(need_txdb), val(ucsc_genome)
-
-    //when:
-    //need_txdb == 'NEED_TXDB'
+    val(ucsc_genome)
 
     output:
     tuple val(id:txdb_name), path(txdb_name), emit: txdb

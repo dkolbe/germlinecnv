@@ -39,6 +39,7 @@ workflow DKOLBE_GERMLINECNV {
     gcnv_ploidy_model
     gcnv_caller_model
     txdb
+    download_txdb
 
     main:
     //samplesheet.view()
@@ -58,6 +59,7 @@ workflow DKOLBE_GERMLINECNV {
         gcnv_ploidy_model,
         gcnv_caller_model,
         txdb,
+        download_txdb,
         params.outdir,
     )
 }
@@ -94,9 +96,17 @@ workflow {
     ch_gcnv_model_interval_list = Channel.fromPath(params.gcnv_model_interval_list).map { it -> [[id:it.simpleName], it] }.collect()
     ch_gcnv_ploidy_model        = Channel.fromPath(params.gcnv_ploidy_model       ).map { it -> [[id:it.simpleName], it] }.collect()
     ch_gcnv_caller_model        = Channel.fromPath(params.gcnv_caller_model       ).map { it -> [[id:it.simpleName], it] }.collect()
-    ch_txdb                     = params.txdb ?
-                                  Channel.fromPath(params.txdb                    ).map { it -> [[id:it.simpleName], it] }.collect()
-                                  : Channel.empty()
+    if (params.txdb) {
+                        ch_txdb = Channel.fromPath(params.txdb                    ).map { it -> [[id:it.simpleName], it] }.collect()
+                        download_txdb = false
+    }
+    else {
+                        ch_txdb = Channel.empty()
+                        download_txdb = true
+    }
+    //ch_txdb                     = params.txdb ?
+    //                              Channel.fromPath(params.txdb                    ).map { it -> [[id:it.simpleName], it] }.collect()
+    //                              : Channel.empty()
 
     //
     // WORKFLOW: Run main workflow
@@ -112,7 +122,8 @@ workflow {
         ch_gcnv_model_interval_list,
         ch_gcnv_ploidy_model,
         ch_gcnv_caller_model,
-        ch_txdb
+        ch_txdb,
+        download_txdb
     )
     //
     // SUBWORKFLOW: Run completion tasks
