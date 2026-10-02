@@ -11,15 +11,17 @@ library(AnnotationDbi)
 # FIXME strongly consider making single run per sample rather than whole batch
 
 # Template-interpolated by main.nf
-calls   <- "${calls_table}"
-counts  <- "${aggregated_counts}"
-regions <- "${regions}"
-txdb    <- "${txdb}"
-buildID <- "${ucsc_genome}"
+calls      <- "${calls_table}"
+counts     <- "${counts}"
+bg_counts  <- "${aggregated_counts}"
+regions    <- "${regions}"
+txdb       <- "${txdb}"
+buildID    <- "${ucsc_genome}"
 
 # Error checking on parameters
 sprintf("Calls: %s",calls)
 sprintf("Counts: %s",counts)
+sprintf("Background counts: %s",bg_counts)
 sprintf("Regions: %s",regions)
 sprintf("txdb: %s",txdb)
 sprintf("Build: %s",buildID)
@@ -36,26 +38,25 @@ if(file.exists(txdb)) {
 }  
 
 probelist <- read.table(regions)
-# FIXME make fewer assumptions about columns
 probelist <- probelist[,1:4]
 names(probelist) <- c("CHR","START","END","GENE")
 probelist_gr <- makeGRangesFromDataFrame(probelist,seqnames.field="CHR",start.field="START",end.field="END",keep.extra.columns = TRUE)
 genome(seqinfo(probelist_gr)) <- buildID
 
-# Add gene marker regions to problist
-# FIXME do this in a configurable, not hard-coded way
-#probelist_gr <- append(probelist_gr,GRanges("15",IRanges(start=43891678,end=44010554),GENE="STRCregion"))
-#probelist_gr <- append(probelist_gr,GRanges("16",IRanges(start=21675224,end=22588189),GENE="OTOAregion"))
-#probelist_gr <- append(probelist_gr,GRanges("13",IRanges(start=20761532,end=21106120),GENE="GJB2region"))
-#probelist_gr <- append(probelist_gr,GRanges("22",IRanges(start=19136435,end=21356679),GENE="TBX1region"))
-
 # Load aggregated copy-number data for a batch
-agg <- read.table(counts,sep="\t",header=TRUE)
+agg <- read.table(bg_counts,sep="\t",header=TRUE)
 agg_gr <- makeGRangesFromDataFrame(agg,seqnames.field="CONTIG",start.field="START",end.field="END",keep.extra.columns = TRUE)
 genome(seqinfo(agg_gr)) <- buildID
 
+# Also build the sample-specific counts into a GR object
+sample_counts <- read.table(counts,sep="\t",comment.char = "@",header=TRUE)
+sample_counts_gr <- makeGRangesFromDataFrame(sample_counts,seqnames.field="CONTIG",start.field="START",end.field="END",keep.extra.columns = TRUE)
+genome(seqinfo(sample_counts_gr)) <- buildID
+
 # FIXME should be able to just pull this from the table read above rather than reading the file again
-ids <- read.table(counts,sep="\t",header=FALSE,nrows=1,as.is=TRUE)[-(1:3)]
+# ... but reading just the first line is NBD
+# Replaced with only processing the single sample passed with metadata rather than all in the aggregated counts dataset
+# ids <- read.table(bg_counts,sep="\t",header=FALSE,nrows=1,as.is=TRUE)[-(1:3)]
 
 # Load segmented call data
 # for (samplename in ids) {
@@ -83,6 +84,9 @@ for (samplename in "${meta.id}") {
   #if (any(c('TBX1') %in% genelist)) {
   #  genelist <- union(genelist,c('TBX1','GSC2','RTN4R','ZNF74','THAP7','TBX1region'))
   #}
+  #
+  # Concept - pull all genes that overlap positions of the 'genes' already in our list
+  # since that includes the region overviews
   
   for (gene in genelist) {
     if (is.na(gene)) { next; } # Might need to deal with these, but later
@@ -91,8 +95,8 @@ for (samplename in "${meta.id}") {
     backgroundtrack <- DataTrack(subsetByOverlaps(agg_gr,extent),
                                  name="Copies",col="gray",ylim=c(0,5),
                                  baseline=2,cex=.5)
-    current <- agg_gr[,make.names(samplename)]
-    current <- subsetByOverlaps(current,extent)
+    #current <- agg_gr[,make.names(samplename)]
+    current <- subsetByOverlaps(sample_counts_gr,extent)
     sampletrack <- DataTrack(current,col="black",ylim=c(0,5),cex=1)
     deltrack <- DataTrack(subsetByOverlaps(current,
                                            segments_gr[which(segments_gr\$ALT == "<DEL>"),]),
