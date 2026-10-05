@@ -68,27 +68,12 @@ for (samplename in "${meta.id}") {
                                           keep.extra.columns = TRUE)
   genome(seqinfo(segments_gr)) <- buildID
   
-  genelist <- unique(mcols(subsetByOverlaps(probelist_gr,segments_gr))\$GENE)
+  genelist1 <- unique(mcols(subsetByOverlaps(probelist_gr,segments_gr))\$GENE)
+  # Expand gene list to cover all genes within overview regions
+  segments_gr <- probelist_gr[elementMetadata(probelist_gr)[,"GENE"] %in% genelist1]
+  genelist2 <- unique(mcols(subsetByOverlaps(probelist_gr,segments_gr))\$GENE)
   
-  # Expand gene list to cover regions
-  # FIXME do this in a configurable, not hard-coded way
-  #if (any(c('STRC','STRCP1') %in% genelist)) {
-  #  genelist <- union(genelist,c('STRC','CATSPER2','STRCP1','STRCregion'))
-  #}
-  #if (any(c('OTOA') %in% genelist)) {
-  #  genelist <- union(genelist,c('OTOA','OTOAP1','OTOAregion'))
-  #}
-  #if (any(c('GJB2','GJB6','CRYL1') %in% genelist)) {
-  #  genelist <- union(genelist,c('GJB2','GJB6','CRYL1','GJB2region'))
-  #}
-  #if (any(c('TBX1') %in% genelist)) {
-  #  genelist <- union(genelist,c('TBX1','GSC2','RTN4R','ZNF74','THAP7','TBX1region'))
-  #}
-  #
-  # Concept - pull all genes that overlap positions of the 'genes' already in our list
-  # since that includes the region overviews
-  
-  for (gene in genelist) {
+  for (gene in genelist2) {
     if (is.na(gene)) { next; } # Might need to deal with these, but later
     extent <- probelist_gr[which(probelist_gr\$GENE==gene),]+50
   
