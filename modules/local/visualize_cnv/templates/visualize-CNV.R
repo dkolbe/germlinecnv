@@ -70,8 +70,8 @@ for (samplename in "${meta.id}") {
   
   genelist1 <- unique(mcols(subsetByOverlaps(probelist_gr,segments_gr))\$GENE)
   # Expand gene list to cover all genes within overview regions
-  segments_gr <- probelist_gr[elementMetadata(probelist_gr)[,"GENE"] %in% genelist1]
-  genelist2 <- unique(mcols(subsetByOverlaps(probelist_gr,segments_gr))\$GENE)
+  genelist_regions_gr <- probelist_gr[elementMetadata(probelist_gr)[,"GENE"] %in% genelist1]
+  genelist2 <- unique(mcols(subsetByOverlaps(probelist_gr,genelist_regions_gr))\$GENE)
   
   for (gene in genelist2) {
     if (is.na(gene)) { next; } # Might need to deal with these, but later
