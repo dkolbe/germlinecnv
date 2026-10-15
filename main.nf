@@ -38,6 +38,7 @@ workflow DKOLBE_GERMLINECNV {
     gcnv_model_interval_list // channel: [meta, gcnv_target_interval_list]
     gcnv_ploidy_model
     gcnv_caller_model
+    graph_all
     txdb
     download_txdb
 
@@ -58,6 +59,7 @@ workflow DKOLBE_GERMLINECNV {
         gcnv_model_interval_list,
         gcnv_ploidy_model,
         gcnv_caller_model,
+        graph_all,
         txdb,
         download_txdb,
         params.outdir,
@@ -96,6 +98,7 @@ workflow {
     ch_gcnv_model_interval_list = Channel.fromPath(params.gcnv_model_interval_list).map { it -> [[id:it.simpleName], it] }.collect()
     ch_gcnv_ploidy_model        = Channel.fromPath(params.gcnv_ploidy_model       ).map { it -> [[id:it.simpleName], it] }.collect()
     ch_gcnv_caller_model        = Channel.fromPath(params.gcnv_caller_model       ).map { it -> [[id:it.simpleName], it] }.collect()
+    graph_all                   = params.graph_all
     if (params.txdb) {
                         ch_txdb = Channel.fromPath(params.txdb                    ).map { it -> [[id:it.simpleName], it] }.collect()
                         download_txdb = false
@@ -122,6 +125,7 @@ workflow {
         ch_gcnv_model_interval_list,
         ch_gcnv_ploidy_model,
         ch_gcnv_caller_model,
+        graph_all,
         ch_txdb,
         download_txdb
     )

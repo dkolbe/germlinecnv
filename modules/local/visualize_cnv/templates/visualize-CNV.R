@@ -17,6 +17,7 @@ bg_counts  <- "${aggregated_counts}"
 regions    <- "${regions}"
 txdb       <- "${txdb}"
 buildID    <- "${ucsc_genome}"
+graph_all  <- "${graph_all}"
 
 # Error checking on parameters
 sprintf("Calls: %s",calls)
@@ -68,10 +69,14 @@ for (samplename in "${meta.id}") {
                                           keep.extra.columns = TRUE)
   genome(seqinfo(segments_gr)) <- buildID
   
-  genelist1 <- unique(mcols(subsetByOverlaps(probelist_gr,segments_gr))\$GENE)
-  # Expand gene list to cover all genes within overview regions
-  genelist_regions_gr <- probelist_gr[elementMetadata(probelist_gr)[,"GENE"] %in% genelist1]
-  genelist2 <- unique(mcols(subsetByOverlaps(probelist_gr,genelist_regions_gr))\$GENE)
+  if (graph_all) {
+    genelist2 <- unique(mcols(probelist_gr)\$GENE)
+  } else {
+    genelist1 <- unique(mcols(subsetByOverlaps(probelist_gr,segments_gr))\$GENE)
+    # Expand gene list to cover all genes within overview regions
+    genelist_regions_gr <- probelist_gr[elementMetadata(probelist_gr)[,"GENE"] %in% genelist1]
+    genelist2 <- unique(mcols(subsetByOverlaps(probelist_gr,genelist_regions_gr))\$GENE)
+  }
   
   for (gene in genelist2) {
     if (is.na(gene)) { next; } # Might need to deal with these, but later

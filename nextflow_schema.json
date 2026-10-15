@@ -125,6 +125,11 @@
                     "type": "string",
                     "fa_icon": "far fa-folder-open",
                     "description": "CNV model from reference cohort"
+                },
+                "graph_all": {
+                    "type": "boolean",
+                    "description": "Include graphs for sample-gene pairs where there is no CNV called. (Caution: significant time increase)",
+                    "fa_icon": "fas fa-check"
                 }
             },
             "required": [

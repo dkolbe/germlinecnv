@@ -38,6 +38,7 @@ workflow GERMLINECNV {
     ch_interval_list
     ch_ploidy_model
     ch_gcnv_caller_model
+    graph_all
     ch_txdb
     download_txdb
     outdir
@@ -138,7 +139,8 @@ workflow GERMLINECNV {
                    AGGREGATE_COUNTS.out.table,
                    ch_regions.map { meta, file -> return file },
                    ch_txdb.map { meta, file -> return file }.first(),
-                   ucsc_genome)
+                   ucsc_genome,
+                   graph_all)
 
     def ch_versions = channel.empty()
 

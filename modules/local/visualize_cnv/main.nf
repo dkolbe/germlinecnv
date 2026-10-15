@@ -13,6 +13,7 @@ process VISUALIZE_CNV {
     path(regions)
     path(txdb)
     val(ucsc_genome)
+    val(graph_all)
 
     output:
     tuple val(meta), path("*.png"), emit: png, optional: true
