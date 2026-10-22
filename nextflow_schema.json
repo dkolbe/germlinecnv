@@ -239,5 +239,11 @@
         {
             "$ref": "#/$defs/generic_options"
         }
-    ]
+    ],
+    "properties": {
+        "graph_some": {
+            "type": "string",
+            "default": "''"
+        }
+    }
 }

@@ -18,6 +18,9 @@ regions    <- "${regions}"
 txdb       <- "${txdb}"
 buildID    <- "${ucsc_genome}"
 graph_all  <- "${graph_all}"
+graph_some  <- "${graph_some}"
+
+graph_some_list <- unlist(strsplit(graph_some,','))
 
 # Error checking on parameters
 sprintf("Calls: %s",calls)
@@ -26,6 +29,8 @@ sprintf("Background counts: %s",bg_counts)
 sprintf("Regions: %s",regions)
 sprintf("txdb: %s",txdb)
 sprintf("Build: %s",buildID)
+sprintf("graph_all: %s",graph_all)
+sprintf("graph_some: %s",graph_some)
 
 # Load standard tracks and annotation. We are retrieving UCSC refseq, so can be slow and may update on subsequent runs.
 gtrack <- GenomeAxisTrack(showTitle=TRUE,rotation.title=0,cex=1.2)
@@ -73,6 +78,10 @@ for (samplename in "${meta.id}") {
     genelist2 <- unique(mcols(probelist_gr)\$GENE)
   } else {
     genelist1 <- unique(mcols(subsetByOverlaps(probelist_gr,segments_gr))\$GENE)
+
+    # Exapnd gene list to include specific requested genes
+    genelist1 <- union(genelist1,graph_some_list)
+
     # Expand gene list to cover all genes within overview regions
     genelist_regions_gr <- probelist_gr[elementMetadata(probelist_gr)[,"GENE"] %in% genelist1]
     genelist2 <- unique(mcols(subsetByOverlaps(probelist_gr,genelist_regions_gr))\$GENE)

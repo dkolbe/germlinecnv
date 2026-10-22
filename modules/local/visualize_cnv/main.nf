@@ -14,6 +14,7 @@ process VISUALIZE_CNV {
     path(txdb)
     val(ucsc_genome)
     val(graph_all)
+    val(graph_some)
 
     output:
     tuple val(meta), path("*.png"), emit: png, optional: true

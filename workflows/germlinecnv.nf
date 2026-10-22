@@ -39,6 +39,7 @@ workflow GERMLINECNV {
     ch_ploidy_model
     ch_gcnv_caller_model
     graph_all
+    graph_some
     ch_txdb
     download_txdb
     outdir
@@ -140,7 +141,8 @@ workflow GERMLINECNV {
                    ch_regions.map { meta, file -> return file },
                    ch_txdb.map { meta, file -> return file }.first(),
                    ucsc_genome,
-                   graph_all)
+                   graph_all,
+                   graph_some)
 
     def ch_versions = channel.empty()
 
