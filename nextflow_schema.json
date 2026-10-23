@@ -89,6 +89,16 @@
                     "fa_icon": "far fa-file",
                     "description": "Database of transcripts",
                     "format": "file-path"
+                },
+                "graph_all": {
+                    "type": "boolean",
+                    "description": "Include graphs for sample-gene pairs where there is no CNV called. (Caution: significant time increase)",
+                    "fa_icon": "fas fa-check"
+                },
+                "graph_some": {
+                    "type": "string",
+                    "description": "Comma-separated string of genes to always graph",
+                    "fa_icon": "fas fa-font"
                 }
             },
             "required": [
@@ -126,10 +136,10 @@
                     "fa_icon": "far fa-folder-open",
                     "description": "CNV model from reference cohort"
                 },
-                "graph_all": {
-                    "type": "boolean",
-                    "description": "Include graphs for sample-gene pairs where there is no CNV called. (Caution: significant time increase)",
-                    "fa_icon": "fas fa-check"
+                "bg_counts": {
+                    "type": "string",
+                    "fa_icon": "far fa-file",
+                    "description": "Reference set of background counts to be used for graphing"
                 }
             },
             "required": [
@@ -239,11 +249,5 @@
         {
             "$ref": "#/$defs/generic_options"
         }
-    ],
-    "properties": {
-        "graph_some": {
-            "type": "string",
-            "default": "''"
-        }
-    }
+    ]
 }

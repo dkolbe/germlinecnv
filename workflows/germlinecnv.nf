@@ -38,6 +38,7 @@ workflow GERMLINECNV {
     ch_interval_list
     ch_ploidy_model
     ch_gcnv_caller_model
+    ch_bg_counts
     graph_all
     graph_some
     ch_txdb
@@ -122,6 +123,7 @@ workflow GERMLINECNV {
          .set {ch_aggregate_in}
 
     AGGREGATE_COUNTS( batch_meta, ch_aggregate_in )
+    ch_bg_counts.map{ meta,file -> file}.collect().concat(AGGREGATE_COUNTS.out.table.toList()).first().set {ch_bg_choice}
 
     if (download_txdb) {
         DOWNLOAD_DB(ucsc_genome)
@@ -137,7 +139,7 @@ workflow GERMLINECNV {
         .set {ch_visualize_in}
 
     VISUALIZE_CNV( ch_visualize_in,
-                   AGGREGATE_COUNTS.out.table,
+                   ch_bg_choice,
                    ch_regions.map { meta, file -> return file },
                    ch_txdb.map { meta, file -> return file }.first(),
                    ucsc_genome,
