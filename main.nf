@@ -101,9 +101,20 @@ workflow {
     ch_gcnv_regions             = Channel.fromPath(params.gcnv_regions            ).map { it -> [[id:it.simpleName], it] }.collect()
     ch_gcnv_model_interval_list = Channel.fromPath(params.gcnv_model_interval_list).map { it -> [[id:it.simpleName], it] }.collect()
     ch_gcnv_ploidy_model        = Channel.fromPath(params.gcnv_ploidy_model       ).map { it -> [[id:it.simpleName], it] }.collect()
-    ch_gcnv_caller_model        = Channel.fromPath(params.gcnv_caller_model       ).map { it -> [[id:it.simpleName], it] }.collect()
     graph_all                   = params.graph_all
-    graph_some                  = params.graph_some
+    graph_some                  = params.graph_some ?: ''
+
+    ch_gcnv_caller_input        = Channel.fromPath(params.gcnv_caller_model       ).branch{ p ->
+        one: p.isDirectory()
+            return p
+        multi: true
+            return p
+        }
+    ch_gcnv_caller_input.multi.splitText().map{ it -> it.trim() }.map { it -> file(it) }
+                        .mix(ch_gcnv_caller_input.one)
+                        .map { it -> [[id:it.simpleName], it] }
+                        .set { ch_gcnv_caller_model }
+
     if (params.txdb) {
                         ch_txdb = Channel.fromPath(params.txdb                    ).map { it -> [[id:it.simpleName], it] }.collect()
                         download_txdb = false

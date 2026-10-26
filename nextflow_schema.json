@@ -134,7 +134,7 @@
                 "gcnv_caller_model": {
                     "type": "string",
                     "fa_icon": "far fa-folder-open",
-                    "description": "CNV model from reference cohort"
+                    "description": "CNV model from reference cohort; either a single model directory or a text file with a list of models"
                 },
                 "bg_counts": {
                     "type": "string",
