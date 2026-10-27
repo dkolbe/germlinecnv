@@ -178,7 +178,12 @@ workflow GERMLINECNV {
         )
     emit:
     indices        = SAMTOOLS_INDEX.out.index
-    readcounts     = ch_readcounts_out
+    readcounts     = GATK4_COLLECTREADCOUNTS.out.tsv
+    ploidy         = GATK4_DETERMINEGERMLINECONTIGPLOIDY.out.calls
+    calls          = GATK4_POSTPROCESSGERMLINECNVCALLS.out.segments
+    call_table     = CSVTK_CONCAT.out.csv
+    agg_cn_tsv     = AGGREGATE_COUNTS.out.table
+    graphs         = VISUALIZE_CNV.out.png
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
 }
 
